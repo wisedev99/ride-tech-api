@@ -14,8 +14,8 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        Role::firstOrCreate(['name' => 'passenger']);
-        Role::firstOrCreate(['name' => 'driver']);
-        // Role::firstOrCreate(['name' => 'admin']);
+    $this->call([
+        RoleSeeder::class,
+    ]);
     }
 }
