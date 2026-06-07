@@ -26,9 +26,7 @@ class CarController extends Controller
     // Delete one of the driver's own cars
     public function destroy(Request $request, Car $car)
     {
-        if ($car->driver_id !== $request->user()->id) {
-            return response()->json(['message' => 'Forbidden'], 403);
-        }
+        $this->authorize('delete', $car);
 
         $car->delete();
 

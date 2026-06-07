@@ -31,9 +31,7 @@ class TripController extends Controller
     // Driver - acept a request trip
     public function accept(Request $request, Trip $trip)
     {
-        if ($trip->status !== 'requested') {
-            return response()->json(['message' => 'Trip is not avilable.'], 422);
-        }
+        $this->authorize('accept', $trip);
 
         $trip->update([
             'driver_id'   => $request->user()->id,
@@ -44,18 +42,15 @@ class TripController extends Controller
         return new TripResource($trip);
     }
 
-    // Driver- complete a trip they accepted
+    // Driver - complete a trip they accepted
     public function complete(Request $request, Trip $trip)
     {
-        if ($trip->driver_id !== $request->user()->id) {
-            return response()->json(['message' => 'Forbidden'], 403);
-        }
+        $this->authorize('complete', $trip);
 
-            $trip->update([
-                'status'       => 'completed',
-                'completed_at' => now(),
-            ]);
-            
+        $trip->update([
+            'status'       => 'completed',
+            'completed_at' => now(),
+        ]);
 
         return new TripResource($trip);
     }
@@ -63,16 +58,12 @@ class TripController extends Controller
     // Passenger- cancel their own trip
     public function cancel(Request $request, Trip $trip)
     {
-        if ($trip->passenger_id !== $request->user()->id) {
-            return response()->json(['message' => 'Forbidden'], 403);
-        }
-
+        $this->authorize('cancel', $trip);
 
         $trip->update([
             'status'       => 'cancelled',
             'cancelled_at' => now(),
         ]);
-
 
         return new TripResource($trip);
     }
