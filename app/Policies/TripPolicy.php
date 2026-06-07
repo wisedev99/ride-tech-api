@@ -7,7 +7,22 @@ use App\Models\User;
 
 class TripPolicy
 {
+    public function view(User $user, Trip $trip): bool
+    {
+        return $user->id === $trip->passenger_id || $user->id === $trip->driver_id;
+    }
+
+    public function update(User $user, Trip $trip): bool
+    {
+        return $user->id === $trip->passenger_id && $trip->status === 'requested';
+    }
+
     public function accept(User $user, Trip $trip): bool
+    {
+        return $trip->status === 'requested' && $trip->driver_id === null;
+    }
+
+    public function reject(User $user, Trip $trip): bool
     {
         return $trip->status === 'requested' && $trip->driver_id === null;
     }

@@ -1,0 +1,733 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "RideTech API",
+        "description": "RESTful API for the RideTech ride-sharing service.",
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "http://my-default-host.com",
+            "description": "API server"
+        }
+    ],
+    "paths": {
+        "/api/register": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Register a new user",
+                "description": "All OpenAPI / Swagger annotations for the RideTech API live in this single\nfile so the controllers stay clean. l5-swagger scans app/ and picks them up.",
+                "operationId": "7411af422f156b7f909b95a1ffed35e2",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name",
+                                    "email",
+                                    "phone",
+                                    "password",
+                                    "password_confirmation",
+                                    "role"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "Bob"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "example": "bob@example.com"
+                                    },
+                                    "phone": {
+                                        "type": "string",
+                                        "example": "+998901112233"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "example": "secret123"
+                                    },
+                                    "password_confirmation": {
+                                        "type": "string",
+                                        "example": "secret123"
+                                    },
+                                    "role": {
+                                        "type": "string",
+                                        "enum": [
+                                            "passenger",
+                                            "driver"
+                                        ]
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Registered"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                }
+            }
+        },
+        "/api/login": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Log in and receive a token",
+                "operationId": "a17b48059d3012f3942ecf9d9cd241e8",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "email",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "example": "bob@example.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "example": "secret123"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Logged in"
+                    },
+                    "422": {
+                        "description": "Invalid credentials"
+                    }
+                }
+            }
+        },
+        "/api/logout": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Revoke the current token",
+                "operationId": "e380e9ea46b0a408fde726cb47566dfd",
+                "responses": {
+                    "200": {
+                        "description": "Logged out"
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/me": {
+            "get": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Get the authenticated user",
+                "operationId": "8df86183905785dd42ceb84ddc081296",
+                "responses": {
+                    "200": {
+                        "description": "Current user"
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/trips": {
+            "get": {
+                "tags": [
+                    "Trips"
+                ],
+                "summary": "List my trips (passenger or driver)",
+                "operationId": "6f2268e97862e5e5be016176110df349",
+                "parameters": [
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "requested",
+                                "accepted",
+                                "completed",
+                                "cancelled"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "date_from",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    },
+                    {
+                        "name": "date_to",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    },
+                    {
+                        "name": "passenger_id",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "driver_id",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Paginated list of trips"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Trips"
+                ],
+                "summary": "Create a trip (passenger)",
+                "operationId": "6384a9a1b4ccdb6acf88f9ca8346df21",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "pickup_address",
+                                    "destination_address"
+                                ],
+                                "properties": {
+                                    "pickup_address": {
+                                        "type": "string",
+                                        "example": "Chilonzor"
+                                    },
+                                    "destination_address": {
+                                        "type": "string",
+                                        "example": "Yunusobod"
+                                    },
+                                    "preferences": {
+                                        "type": "string",
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Trip created"
+                    },
+                    "403": {
+                        "description": "Not a passenger"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/trips/available": {
+            "get": {
+                "tags": [
+                    "Trips"
+                ],
+                "summary": "List open trips (driver)",
+                "operationId": "bb34ae9f5daa47da7c86f5960c4bcba3",
+                "responses": {
+                    "200": {
+                        "description": "Open trips"
+                    },
+                    "403": {
+                        "description": "Not a driver"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/trips/{trip}": {
+            "get": {
+                "tags": [
+                    "Trips"
+                ],
+                "summary": "Show a trip (passenger or driver of it)",
+                "operationId": "043c476724272d90d7c557f3217cdb70",
+                "parameters": [
+                    {
+                        "name": "trip",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Trip details"
+                    },
+                    "403": {
+                        "description": "Not your trip"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Trips"
+                ],
+                "summary": "Update a requested trip (passenger owner)",
+                "operationId": "6c92f7eb4041a987c0b16f1a34f8f4e7",
+                "parameters": [
+                    {
+                        "name": "trip",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "pickup_address": {
+                                        "type": "string"
+                                    },
+                                    "destination_address": {
+                                        "type": "string"
+                                    },
+                                    "preferences": {
+                                        "type": "string",
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Trip updated"
+                    },
+                    "403": {
+                        "description": "Not allowed / not requested"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Trips"
+                ],
+                "summary": "Cancel a trip (passenger owner)",
+                "operationId": "7e6e26e0ce4002bff73b9c8cd680056a",
+                "parameters": [
+                    {
+                        "name": "trip",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Trip cancelled"
+                    },
+                    "403": {
+                        "description": "Not your trip"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/trips/{trip}/accept": {
+            "post": {
+                "tags": [
+                    "Trips"
+                ],
+                "summary": "Accept a trip (driver)",
+                "operationId": "bb1f287fd8739cb7d17c99265c821bf1",
+                "parameters": [
+                    {
+                        "name": "trip",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Trip accepted"
+                    },
+                    "403": {
+                        "description": "Trip not available"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/trips/{trip}/reject": {
+            "post": {
+                "tags": [
+                    "Trips"
+                ],
+                "summary": "Reject a trip (driver)",
+                "operationId": "660f765ce654e9ef31ce5c335e3ff24e",
+                "parameters": [
+                    {
+                        "name": "trip",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Trip rejected"
+                    },
+                    "403": {
+                        "description": "Trip not available"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/trips/{trip}/complete": {
+            "post": {
+                "tags": [
+                    "Trips"
+                ],
+                "summary": "Complete a trip (driver)",
+                "operationId": "09ba276f3af8f3fb10656fe6f825cbc6",
+                "parameters": [
+                    {
+                        "name": "trip",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Trip completed"
+                    },
+                    "403": {
+                        "description": "Not the assigned driver"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/cars": {
+            "get": {
+                "tags": [
+                    "Cars"
+                ],
+                "summary": "List my cars (driver)",
+                "operationId": "cf5c3af838bd94e25540c3dc41e8f7ad",
+                "responses": {
+                    "200": {
+                        "description": "List of cars"
+                    },
+                    "403": {
+                        "description": "Not a driver"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Cars"
+                ],
+                "summary": "Add a car (driver)",
+                "operationId": "f8b99ef0207ed29ebdd7ad5503840a8c",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "brand",
+                                    "model",
+                                    "plate_number"
+                                ],
+                                "properties": {
+                                    "brand": {
+                                        "type": "string",
+                                        "example": "Chevrolet"
+                                    },
+                                    "model": {
+                                        "type": "string",
+                                        "example": "Cobalt"
+                                    },
+                                    "plate_number": {
+                                        "type": "string",
+                                        "example": "01A123BC"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Car created"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/cars/{car}": {
+            "delete": {
+                "tags": [
+                    "Cars"
+                ],
+                "summary": "Delete a car (owner driver)",
+                "operationId": "746672d527742cd978a82854188c27ce",
+                "parameters": [
+                    {
+                        "name": "car",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Car deleted"
+                    },
+                    "403": {
+                        "description": "Not your car"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/reviews/{driver}": {
+            "get": {
+                "tags": [
+                    "Reviews"
+                ],
+                "summary": "List a driver's reviews",
+                "operationId": "bf4ae79c310356915715b73d681e288c",
+                "parameters": [
+                    {
+                        "name": "driver",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Paginated reviews"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Reviews"
+                ],
+                "summary": "Review a driver (passenger, after a completed trip)",
+                "operationId": "0833183c71a601613db035c3c17c4664",
+                "parameters": [
+                    {
+                        "name": "driver",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "rating"
+                                ],
+                                "properties": {
+                                    "rating": {
+                                        "type": "integer",
+                                        "maximum": 5,
+                                        "minimum": 1,
+                                        "example": 5
+                                    },
+                                    "comment": {
+                                        "type": "string",
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Review saved"
+                    },
+                    "403": {
+                        "description": "No completed trip with this driver"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        }
+    },
+    "components": {
+        "securitySchemes": {
+            "sanctum": {
+                "type": "http",
+                "bearerFormat": "Sanctum",
+                "scheme": "bearer"
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Auth",
+            "description": "Auth"
+        },
+        {
+            "name": "Trips",
+            "description": "Trips"
+        },
+        {
+            "name": "Cars",
+            "description": "Cars"
+        },
+        {
+            "name": "Reviews",
+            "description": "Reviews"
+        }
+    ]
+}
