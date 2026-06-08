@@ -3,6 +3,12 @@
 RESTful API for **RideTech**, a ride-sharing service. Passengers request trips,
 drivers accept and complete them, and passengers review drivers after a completed ride.
 
+## Live API
+
+- **Base URL:** https://rideapi.wisedev.io
+- **Swagger UI:** https://rideapi.wisedev.io/api/documentation
+- Opening the base URL automatically redirects to the Swagger docs.
+
 ## Stack
 
 - PHP 8.3, Laravel 10
