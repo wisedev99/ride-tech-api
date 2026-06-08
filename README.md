@@ -1,66 +1,173 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# RideTech API
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+RESTful API for **RideTech**, a ride-sharing service. Passengers request trips,
+drivers accept and complete them, and passengers review drivers after a completed ride.
 
-## About Laravel
+## Stack
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- PHP 8.3, Laravel 10
+- Laravel Sanctum (token auth)
+- spatie/laravel-permission (roles: `passenger` / `driver`)
+- MySQL (app), SQLite in-memory (tests)
+- darkaonline/l5-swagger (API docs)
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Requirements
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- PHP **8.1+** (developed on 8.3)
+- Composer 2
+- MySQL 5.7+ / 8.x
+- Git
 
-## Learning Laravel
+## Setup (clone & run)
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+Follow these steps on any machine to get the API running from scratch.
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+**1. Clone the repository**
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+```bash
+git clone <repo-url>
+cd ride-tech-api
+```
 
-## Laravel Sponsors
+**2. Install PHP dependencies**
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+```bash
+composer install
+```
 
-### Premium Partners
+**3. Create your environment file**
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+```bash
+cp .env.example .env
+php artisan key:generate
+```
 
-## Contributing
+**4. Create the database**
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+Create an empty MySQL database (default name is `ridetech`):
 
-## Code of Conduct
+```bash
+mysql -u root -p -e "CREATE DATABASE ridetech CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+Then open `.env` and set your DB credentials:
 
-## Security Vulnerabilities
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=ridetech
+DB_USERNAME=root
+DB_PASSWORD=
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+**5. Run migrations and seed demo data**
 
-## License
+```bash
+php artisan migrate --seed
+```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+This creates all tables, seeds the roles (`passenger`, `driver`) and some demo
+users/trips/reviews.
+
+> The seeders are idempotent — `php artisan db:seed` can be re-run safely and will
+> reuse existing rows instead of duplicating demo data.
+
+**6. Generate the API documentation**
+
+```bash
+php artisan l5-swagger:generate
+```
+
+**7. Start the server**
+
+```bash
+php artisan serve
+```
+
+The API is now live at **`http://127.0.0.1:8000`**, and opening the root URL
+redirects to the Swagger UI at **`/api/documentation`**.
+
+### One-line setup (after editing `.env`)
+
+```bash
+composer install && cp .env.example .env && php artisan key:generate \
+  && php artisan migrate --seed && php artisan l5-swagger:generate && php artisan serve
+```
+
+## Authentication
+
+Send the token from `register` / `login` as a bearer header:
+
+```
+Authorization: Bearer <token>
+Accept: application/json
+```
+
+## API Endpoints
+
+### Auth
+| Method | Endpoint | Role | Description |
+|--------|----------|------|-------------|
+| POST | `/api/register` | public | Register and receive a token |
+| POST | `/api/login` | public | Log in and receive a token |
+| POST | `/api/logout` | auth | Revoke the current token |
+| GET | `/api/me` | auth | Current authenticated user |
+
+### Trips
+| Method | Endpoint | Role | Description |
+|--------|----------|------|-------------|
+| GET | `/api/trips` | auth | List my trips. Filters: `status`, `date_from`, `date_to`, `passenger_id`, `driver_id`; pagination via `per_page` |
+| GET | `/api/trips/{trip}` | passenger/driver of trip | Trip details |
+| POST | `/api/trips` | passenger | Create a trip request |
+| PUT | `/api/trips/{trip}` | passenger owner | Update a still-`requested` trip |
+| DELETE | `/api/trips/{trip}` | passenger owner | Cancel a trip |
+| GET | `/api/trips/available` | driver | List open (unassigned) trips |
+| POST | `/api/trips/{trip}/accept` | driver | Accept an open trip |
+| POST | `/api/trips/{trip}/reject` | driver | Reject an open trip |
+| POST | `/api/trips/{trip}/complete` | assigned driver | Complete a trip |
+
+### Cars
+| Method | Endpoint | Role | Description |
+|--------|----------|------|-------------|
+| GET | `/api/cars` | driver | List my cars |
+| POST | `/api/cars` | driver | Add a car |
+| DELETE | `/api/cars/{car}` | owner driver | Delete a car |
+
+### Reviews
+| Method | Endpoint | Role | Description |
+|--------|----------|------|-------------|
+| GET | `/api/reviews/{driver}` | auth | List a driver's reviews (paginated) |
+| POST | `/api/reviews/{driver}` | passenger | Review a driver after a completed trip |
+
+Trip statuses: `requested`, `accepted`, `completed`, `cancelled`.
+
+## API Documentation (Swagger)
+
+Generate and view the interactive docs:
+
+```bash
+php artisan l5-swagger:generate
+```
+
+Then open **`http://127.0.0.1:8000/api/documentation`**.
+
+All OpenAPI annotations live in a single file: `app/Swagger/ApiDoc.php`.
+
+## Running Tests
+
+Tests use an in-memory SQLite database (configured in `.env.testing`), so they
+never touch your MySQL data:
+
+```bash
+php artisan test
+```
+
+## Architecture notes
+
+- **Validation** lives in Form Requests (`app/Http/Requests`).
+- **Output** is shaped by API Resources (`app/Http/Resources`).
+- **Authorization / ownership** is enforced by Policies (`CarPolicy`, `TripPolicy`).
+- **Role gating** uses spatie's `role:` middleware on route groups.
+- Controllers stay thin. All DB access uses Eloquent / query bindings (no raw SQL).
+- Auth routes are rate-limited (`throttle:6,1`).
