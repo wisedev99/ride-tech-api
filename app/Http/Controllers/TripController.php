@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\TripStatusUpdated;
 use App\Http\Requests\StoreTripRequest;
 use App\Http\Requests\UpdateTripRequest;
 use App\Http\Resources\TripResource;
@@ -79,6 +80,8 @@ class TripController extends Controller
             'accepted_at' => now(),
         ]);
 
+        broadcast(new TripStatusUpdated($trip));
+
         return new TripResource($trip);
     }
 
@@ -92,6 +95,8 @@ class TripController extends Controller
             'cancelled_at' => now(),
         ]);
 
+        broadcast(new TripStatusUpdated($trip));
+
         return new TripResource($trip);
     }
 
@@ -104,6 +109,8 @@ class TripController extends Controller
             'status'       => 'completed',
             'completed_at' => now(),
         ]);
+
+        broadcast(new TripStatusUpdated($trip));
 
         return new TripResource($trip);
     }
