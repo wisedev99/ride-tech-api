@@ -19,3 +19,6 @@ yarn-error.log
 
 # Logs
 /storage/logs/*.log
+
+# local scratch
+txt.txt

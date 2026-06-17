@@ -160,6 +160,36 @@ Then open **`http://127.0.0.1:8000/api/documentation`**.
 
 All OpenAPI annotations live in a single file: `app/Swagger/ApiDoc.php`.
 
+## Real-time trip updates (WebSockets)
+
+When a driver **accepts**, **rejects**, or **completes** a trip, a
+`TripStatusUpdated` event is broadcast on the private channel `trip.{id}`.
+Only the trip's passenger or driver may subscribe (authorized in
+`routes/channels.php`).
+
+By default `BROADCAST_DRIVER=log`, so the REST API works without any extra
+server. To enable live updates, switch the driver to `pusher` and run the
+bundled websocket server (`beyondcode/laravel-websockets`):
+
+```env
+BROADCAST_DRIVER=pusher
+```
+
+```bash
+# Terminal 1 — the API
+php artisan serve
+
+# Terminal 2 — the websocket server (port 6001)
+php artisan websockets:serve
+```
+
+Open the debug dashboard at **`http://127.0.0.1:8000/laravel-websockets`**,
+click **Connect**, then accept a trip — you'll see the `trip.status` event on
+channel `private-trip.{id}`.
+
+> Note: with `BROADCAST_DRIVER=pusher` the websocket server must be running,
+> otherwise trip accept/reject/complete will fail when they try to broadcast.
+
 ## Running Tests
 
 Tests use an in-memory SQLite database (configured in `.env.testing`), so they
