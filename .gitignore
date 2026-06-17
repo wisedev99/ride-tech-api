@@ -22,3 +22,8 @@ yarn-error.log
 
 # local scratch
 txt.txt
+
+# editor / assistant settings
+.claude/
+CLAUDE.md
+.vscode/
